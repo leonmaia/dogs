@@ -3,6 +3,7 @@ package http
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.http._
 import com.twitter.util.Future
+import io.finch.response.{InternalServerError, Unauthorized, NotFound}
 
 object filters {
 
@@ -15,7 +16,7 @@ object filters {
       if (request.headerMap.get(Fields.Authorization).contains("open sesame")) {
         continue(request)
       } else {
-        Future.exception(new IllegalArgumentException("You don't know the secret"))
+        Future.exception(errors.Unauthorized("You don't know the secret"))
       }
     }
   }
@@ -28,9 +29,9 @@ object filters {
     def apply(request: Request, service: Service[Request, Response]) = {
 
       service(request) handle {
-        case e: errors.NotFound => Response(Version.Http11, Status.NotFound)
-        case e: IllegalArgumentException => Response(Version.Http11, Status.Forbidden)
-        case _ => Response(Version.Http11, Status.InternalServerError)
+        case e: errors.NotFound => NotFound(e.message)
+        case e: errors.Unauthorized => Unauthorized(e.message)
+        case _ => InternalServerError()
       }
     }
   }
