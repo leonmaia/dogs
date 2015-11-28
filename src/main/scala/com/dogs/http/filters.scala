@@ -1,11 +1,14 @@
-package http
+package com.dogs.http
 
-import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.http._
+import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
-import io.finch.response.{InternalServerError, Unauthorized, NotFound}
+import io.finch.response.{InternalServerError, NotFound, Unauthorized}
+import org.slf4j.LoggerFactory
 
 object filters {
+
+  val log = LoggerFactory.getLogger(getClass.getName)
 
   /**
     * A simple Filter that checks that the request is valid by inspecting the
@@ -31,7 +34,9 @@ object filters {
       service(request) handle {
         case e: errors.NotFound => NotFound(e.message)
         case e: errors.Unauthorized => Unauthorized(e.message)
-        case _ => InternalServerError()
+        case e: Throwable =>
+          log.error(e.getMessage)
+          InternalServerError()
       }
     }
   }
