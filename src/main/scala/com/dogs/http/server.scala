@@ -2,15 +2,14 @@ package com.dogs.http
 
 import java.net.InetSocketAddress
 
-import com.dogs.hello.endpoint
-import com.dogs.http.filters.{Authorize, HandleExceptions}
+import com.dogs.http.filters.{HandleExceptions, Authorize}
+import com.dogs.todo.endpoint
 import com.twitter.app.App
 import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.finagle.http._
 import com.twitter.finagle.zipkin.thrift.ZipkinTracer
 
-object server  extends App
-  with Logging {
+object server extends App {
 
   val port: Int = 8080
 
@@ -19,7 +18,7 @@ object server  extends App
     val authorize = new Authorize
 
     // compose the Filters and Service together:
-    val service = handleExceptions andThen endpoint.makeService
+    val service = handleExceptions andThen authorize andThen endpoint.makeService
 
     ServerBuilder()
       .codec(Http())

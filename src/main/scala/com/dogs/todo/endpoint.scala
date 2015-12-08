@@ -1,4 +1,4 @@
-package com.dogs.hello
+package com.dogs.todo
 
 import com.dogs.json.mapper
 import com.dogs.redis.RedisClient
@@ -12,8 +12,8 @@ object endpoint {
 
   val client = RedisClient()
 
-  private def respond: Endpoint[Option[Hello]] = get("hello" / string) { key: String =>
-    val future = client.get[Hello](key)(Future(Option(Hello("Hello,", "world!"))))
+  private def respond: Endpoint[Option[Dog]] = get("dog" / string) { key: String =>
+    val future = client.get[Dog](key)(Future(Option.empty))
     Ok(future)
   }
 
